@@ -21,9 +21,9 @@ public class Grid {
 		for (int i=0; i<height; i++)
 			for (int j=0; j<width; j++)
 				if (i==0 || j==0 || i==height-1 || j==width-1) {
-					System.out.println("i " + i + " j " + j);
 					this.grid[i][j] = 'f';
-				}
+				} else 
+					this.grid[i][j] = 'e';
 		
 		int obstacles_count = random(0, this.width*this.height/2);
 		for (int x=0; x<obstacles_count; x++) {
