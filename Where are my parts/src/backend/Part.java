@@ -12,6 +12,7 @@ public class Part {
 		location[0] = i;
 		location[1] = j;
 		linked_parts = new ArrayList<>();
+		linked_parts.add(this);
 	}
 	
 	public void linkPart(Part part) {
@@ -19,7 +20,7 @@ public class Part {
 	}
 	
 	public void step(Grid grid, Operator direction) {
-		String tag = grid.grid[this.location[0]][this.location[1]];  
+		String tag = grid.grid[this.location[0]][this.location[1]];
 		grid.grid[this.location[0]][this.location[1]] = "e";
 		switch (direction) {
 		
@@ -47,6 +48,7 @@ public class Part {
 				part.location[1] = part.location[1] - 1;
 			break;
 		}
+		System.out.println(this.location[0] + ", " + this.location[1]);
 		grid.grid[this.location[0]][this.location[1]] = tag;
 	}
 	

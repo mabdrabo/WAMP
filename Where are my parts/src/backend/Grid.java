@@ -12,7 +12,7 @@ public class Grid extends SearchTreeNode{
 	public int width;
 	public int height;
 	int min = 5;
-	int max = 10;
+	int max = 5;
 	
 	public Grid() {
 		this.width = random(min, max);
