@@ -75,7 +75,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			break;
 		}
 		if (i<0 || j<0 || i>=this.grid.height || j>=this.grid.width)
-			return TempState.STOP;
+			return TempState.FAIL;
 		else
 			return (grid.grid[i][j] == "o" || grid.grid[i][j].contains("p"))? TempState.STOP : 
 				(grid.grid[i][j] == "f")? TempState.FAIL :
@@ -99,7 +99,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			Grid node = nodes.poll();
 			System.out.format("popped node: %s\n", node.toString());
 			if (searchProblem.goal_test(node)) {	// success
-				System.out.println("GOAL NODE!!");
+				System.out.format("GOAL NODE!! %s\n", node);
 				break;
 			}
 
@@ -119,7 +119,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			}
 //			if (nodes.size() > 100) break;
 		}
-		System.out.println(Arrays.deepToString(nodes.toArray()));
 		Object[] return_list = {moves, cost, expansions};
 		System.out.println("Search Return List: " + Arrays.deepToString(return_list));
 		return return_list;
