@@ -40,7 +40,6 @@ public class Grid extends SearchTreeNode{
 		int parts_count = 5;
 		System.out.println("#parts:" + parts_count);
 		parts = new ArrayList<Part>();
-		HashSet<Part> hashSetOfParts = new HashSet<>();	// used to remove duplicates while adding the randomly generated robotic parts
 		for (int x=0; x<parts_count; x++) {
 			int i = random(0, this.height-1);
 			int j = random(0, this.width-1);
@@ -48,11 +47,9 @@ public class Grid extends SearchTreeNode{
 				continue;
 			else this.grid[i][j] = "p" + x;
 			System.out.format("Part[%d][%d]\n", i, j);
-			hashSetOfParts.add(new Part(i,j));
+			parts.add(new Part(i,j));
 		}
-		parts_count = hashSetOfParts.size();
 		System.out.println("#parts (after removing dubs):" + parts_count);
-		parts.addAll(hashSetOfParts);
 		
 	}
 	
