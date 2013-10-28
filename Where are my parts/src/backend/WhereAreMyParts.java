@@ -122,7 +122,9 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				case BF:
 					breadthFirst(node);
 					break;
-
+				case DF:
+					depthFirst(node);
+					break;
 				case GR1:
 					greedy(1);
 					break;
@@ -130,7 +132,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				default:
 					break;
 			}
-			if (this.state_space.size() > 300) {	// Threshold to avoid open loops
+			if (this.state_space.size() > 1000) {	// Threshold to avoid open loops
 				System.out.println("NO SOLUTION!");
 				break;
 			}
@@ -162,9 +164,12 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	public void breadthFirst(Grid node) {
 		System.out.println("Breadth first");
 		this.state_space.addAll(expand(node));		// add that node to the end of the Q
-		System.out.format("#ADDED: %d\n", this.state_space.size());
 	}
 	
+	public void depthFirst(Grid node) {
+		System.out.println("Depth first");
+		this.state_space.addAll(0, expand(node));		// add that node to the start of the Q
+	}
 	
 	public void greedy(int heuristic) {
 		System.out.println("Greedy " + heuristic);

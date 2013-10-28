@@ -68,6 +68,14 @@ public class Game {
 			}
 		});
 		controlPanel.add(BFButton);
+		
+		JButton DFButton = new JButton("Depth First");
+		DFButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				backend.search(backend, SearchStrategy.DF, true);
+			}
+		});
+		controlPanel.add(DFButton);
 		for (int i=0; i<random_grid.height; i++)
 			for (int j=0; j<random_grid.width; j++) {
 				Label l = new Label();
