@@ -1,85 +1,102 @@
 package backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
 
 enum SearchStrategy {BF, DF, ID, GR1, GR2, AS1, AS2};
-enum Operator {NORTH, SOUTH, EAST, WEST};
+enum Operator {NORTH, EAST, SOUTH, WEST};
 enum TempState {CLEAR, STOP, FAIL};
 
 public class WhereAreMyParts extends GenericSearchProblem {
 	
-	public Grid grid;
-	
 	public WhereAreMyParts() {
 		GenGrid();
-		this.initial_state = this.grid;
-		System.out.println(goal_test(this.initial_state));
+		this.initial_state = GenGrid();
+		this.state_space.add(this.initial_state);
 	}
 
-	public void GenGrid() {
-		this.grid = new Grid();
+	public Grid GenGrid() {
+		return new Grid();
 	}
 	
-	public boolean move(Grid grid, Part part, Operator direction) {
+	public boolean move(Grid node, Part part, Operator direction) {
 	// Continuous movement of the given part in the given direction obeying the stop conditions
-		boolean moved = false;
-		while (checkForStopAndFail(part, direction) == TempState.CLEAR) {
-			System.out.println("MOVE CLEAR");
-			part.step(grid, direction);
-			moved = true;
-		}
+		TempState check = checkForStopAndFail(node, part, direction);
 		
-		if (checkForStopAndFail(part, direction) == TempState.FAIL) {
-			System.out.println("MOVE FAIL, reason: WIRE FENCE, GAMEOVER!");
-			return moved;
-		}
-		
-		if (checkForStopAndFail(part, direction) == TempState.STOP) {
+		switch (check) {
+		case FAIL:
+			System.out.println("MOVE FAIL, reason: WIRE FENCE");
+			return false;
+		case STOP:
 			System.out.println("MOVE STOP, reason: OBSTACLE or ROBOT PART");
-			return moved;
+			return true;
+		default:
+			break;
 		}
-		
-		return moved;	
+		return false;
 	}
 	
-	private TempState checkForStopAndFail(Part part, Operator direction) {
+	private TempState checkForStopAndFail(Grid node, Part part, Operator direction) {
 	//	A moving part should Stop if it's facing either an obstacle or an other robotic part
 	//	A moving part should Fail if it's facing a wired fence
 	//	Otherwise, the way is Clear to continue moving
-
-		int i = 0;
-		int j = 0;
+		TempState returnState = null;
+		boolean move = false;
+		int i = part.location[0];
+		int j = part.location[1];
+		int[] correct = new int[] {0,0};
 		
-		switch (direction) {
+		do {
+			switch (direction) {
+			
+			case NORTH:
+				i--;
+				correct[0] = 1;
+				break;
+	
+			case SOUTH:
+				i++;
+				correct[0] = -1;
+				break;
+				
+			case EAST:
+				j++;
+				correct[1] = -1;
+				break;
+				
+			case WEST:
+				j--;
+				correct[1] = 1;
+				break;
+			}
+			if (i<0 || j<0 || i>=node.height || j>=node.width || node.grid[i][j] == "f") {
+				returnState = TempState.FAIL;	// TODO return to FAIL
+				move = false;
+			}
+			else {
+				if (node.grid[i][j] == "o" || node.grid[i][j].contains("p")) {
+					returnState = TempState.STOP; 
+				}
+				else {
+					if (node.grid[i][j] == "e") {
+						move = true;
+						returnState = TempState.CLEAR;
+					}
+				}
+			}
+		} while (returnState == TempState.CLEAR);
 		
-		case NORTH:
-			i = part.location[0] - 1;
-			j = part.location[1];
-			break;
-
-		case SOUTH:
-			i = part.location[0] + 1;
-			j = part.location[1];
-			break;
-			
-		case EAST:
-			i = part.location[0];
-			j = part.location[1] + 1;
-			break;
-			
-		case WEST:
-			i = part.location[0];
-			j = part.location[1] - 1;
-			break;
+		i+=correct[0];
+		j+=correct[1];
+		if (move) {
+			System.out.format("old %d %d, new %d %d", part.location[0], part.location[1], i, j);
+			String tag = node.grid[part.location[0]][part.location[1]];
+			node.grid[part.location[0]][part.location[1]] = "e";
+			part.location[0] = i;
+			part.location[1] = j;
+			node.grid[part.location[0]][part.location[1]] = tag;
 		}
-		if (i<0 || j<0 || i>=this.grid.height || j>=this.grid.width)
-			return TempState.FAIL;
-		else
-			return (grid.grid[i][j] == "o" || grid.grid[i][j].contains("p"))? TempState.STOP : 
-				(grid.grid[i][j] == "f")? TempState.FAIL :
-					(grid.grid[i][j] == "e")? TempState.CLEAR : TempState.FAIL ; 
+		return returnState;
 	}
 	
 	
@@ -88,58 +105,68 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		int cost = 0;	// the cost of the solution computed
 		int expansions = 0;	// the number of nodes chosen for expansion during the search
 
-		Queue<Grid> nodes = new LinkedList<>();
-		nodes.add((Grid) searchProblem.initial_state);
-
 		while (true) {
-			if (nodes.isEmpty()) {	// fail
+			if (this.state_space.isEmpty()) {	// fail
 				System.out.println("NO SOLUTION");
 				break;
 			}
-			Grid node = nodes.poll();
+			Grid node = (Grid) this.state_space.remove(0);
 			System.out.format("popped node: %s\n", node.toString());
 			if (searchProblem.goal_test(node)) {	// success
 				System.out.format("GOAL NODE!! %s\n", node);
+				System.out.println(node.parts);
 				break;
 			}
 
 			switch (strategy) {
 				case BF:
-					System.out.format("Tree size before: %d\n", nodes.size());
-					nodes = new LinkedList<Grid>(breadthFirst(nodes, node));
-					System.out.format("Tree size after: %d\n", nodes.size());
+					breadthFirst(node);
 					break;
 
 				case GR1:
-					greedy(1, nodes);
+					greedy(1);
 					break;
 
 				default:
 					break;
 			}
-//			if (nodes.size() > 100) break;
+			if (this.state_space.size() > 300) {	// Threshold to avoid open loops
+				System.out.println("NO SOLUTION!");
+				break;
+			}
 		}
 		Object[] return_list = {moves, cost, expansions};
 		System.out.println("Search Return List: " + Arrays.deepToString(return_list));
 		return return_list;
 	}
-
-	public Queue<Grid> breadthFirst(Queue<Grid> nodes, Grid node) {
-		System.out.println("Breadth first");
+	
+	public ArrayList<Grid> expand(Grid node) {
+		ArrayList<Grid> new_nodes = new ArrayList<>();
 		for (Part part : node.parts) {
 			for (Operator op : Operator.values()) {
-				Grid grid_after_move = new Grid(node);	// create a copy of the current node
-				if (move(grid_after_move, part, op)) {	// a move is possible within the rules
-					nodes.add(grid_after_move);		// add that node to the end of the Q
-					System.out.format("ADDED NODE: %s\n", grid_after_move);
+				Grid new_node = new Grid(node);	// create a copy of the current node
+				if (move(new_node, part, op)) {	// a move is possible within the rules
+					new_node.operator = op;
+					new_node.parent = node;
+//					if (!Arrays.deepToString(new_node.grid).equals(Arrays.deepToString(((Grid) new_node.parent).grid)))
+//						if (!Arrays.deepToString(new_node.grid).equals(Arrays.deepToString(((Grid) new_node.parent.parent).grid))) {
+							System.out.format("ADDED: %s\n", new_node);
+							new_nodes.add(new_node);
+//						}
 				}
 			}
 		}
-		return nodes;
+		return new_nodes;
+	}
+
+	public void breadthFirst(Grid node) {
+		System.out.println("Breadth first");
+		this.state_space.addAll(expand(node));		// add that node to the end of the Q
+		System.out.format("#ADDED: %d\n", this.state_space.size());
 	}
 	
 	
-	public void greedy(int heuristic, Queue<Grid> nodes) {
+	public void greedy(int heuristic) {
 		System.out.println("Greedy " + heuristic);
 		switch (heuristic) {
 		case 1:
@@ -187,13 +214,28 @@ public class WhereAreMyParts extends GenericSearchProblem {
 //			return true;
 		for (Part part : grid.parts) {
 			for (Part part2 : grid.parts) {
-				if (!this.grid.grid[part.location[0]][part.location[1]].equals(this.grid.grid[part2.location[0]][part2.location[1]]))
+				if (!grid.grid[part.location[0]][part.location[1]].equals(grid.grid[part2.location[0]][part2.location[1]]))
 					return false;
 			}
 		}
 		return true;
 	}
 
+	public Operator opposite(Operator direction) {
+		switch (direction) {
+		case NORTH:
+			return Operator.SOUTH;
+		case SOUTH:
+			return Operator.NORTH;
+		case EAST:
+			return Operator.WEST;
+		case WEST:
+			return Operator.EAST;
+		default:
+			return null;
+		}
+	}
+	
 	@Override
 	public void path_cost() {
 		// TODO Auto-generated method stub

@@ -2,7 +2,6 @@ package backend;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 public class Grid extends SearchTreeNode{
 	//	Randomly generated rectangular grid of squares
@@ -23,7 +22,7 @@ public class Grid extends SearchTreeNode{
 		for (int i=0; i<height; i++)
 			for (int j=0; j<width; j++)
 				if (i==0 || j==0 || i==height-1 || j==width-1) {
-					this.grid[i][j] = "o";		// TODO CHANGE TO f INSTED OF o THIS WAS JUST A TEST
+					this.grid[i][j] = "o";		// TODO CHANGE TO f INSTED OF o, THIS WAS JUST A TEST
 				} else 
 					this.grid[i][j] = "e";
 		
@@ -58,7 +57,9 @@ public class Grid extends SearchTreeNode{
 		this.width = grid.width;
 		this.height = grid.height;
 		this.grid = new String[grid.height][grid.width];
-		this.grid = grid.grid;
+		this.grid = grid.grid.clone();
+		System.out.println("OLD GRID:" + grid.grid);
+		System.out.println("NEW GRID:" + this.grid);
 	}
 	
 	

@@ -1,12 +1,16 @@
 package backend;
 
-import java.util.Queue;
+import java.util.ArrayList;
 
 public abstract class GenericSearchProblem {
 	
-	enum operators {};	// A set of operators, or actions, available to the agent
+	Operator[] operators;	// A set of operators, or actions, available to the agent
 	SearchTreeNode initial_state;
-	Queue<SearchTreeNode> state_space;	// the set of states reachable from the initial state by any sequence of actions
+	ArrayList<SearchTreeNode> state_space;	// the set of states reachable from the initial state by any sequence of actions
+	
+	public GenericSearchProblem() {
+		this.state_space = new ArrayList<SearchTreeNode>();
+	}
 	
 	public abstract boolean goal_test(SearchTreeNode node);	//	the agent applies to a state to determine if it is a goal state.
 	
