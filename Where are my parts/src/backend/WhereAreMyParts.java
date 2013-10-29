@@ -45,7 +45,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		int i = part.location[0];
 		int j = part.location[1];
 		int[] correct = new int[] {0,0};
-		
+
 		do {
 			switch (direction) {
 			
