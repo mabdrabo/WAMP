@@ -233,7 +233,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	}
 
 	public ArrayList<Grid> expand(Grid node) {
-		ArrayList<Grid> new_nodes = new ArrayList<>();
+		ArrayList<Grid> new_nodes = new ArrayList<Grid>();
 		for (int x=0 ; x<node.parts.size(); x++) {
 			Part part = node.parts.get(x);
 			for (Operator op : Operator.values()) {
