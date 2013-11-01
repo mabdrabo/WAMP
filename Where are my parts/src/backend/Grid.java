@@ -30,7 +30,7 @@ public class Grid extends SearchTreeNode{
 				} else 
 					this.grid[i][j] = "e";
 		
-//		int obstacles_count = random(0, this.width*this.height/2);
+//		int obstacles_count = random(0, this.width*this.height/2);	// TODO just for testing
 		int obstacles_count = 0;
 		System.out.println("#obstacles:" + obstacles_count);
 		for (int x=0; x<obstacles_count; x++) {
@@ -39,7 +39,7 @@ public class Grid extends SearchTreeNode{
 			this.grid[i][j] = "b";
 		}
 		
-//		int parts_count = random(0, this.width*this.height/2);
+//		int parts_count = random(0, this.width*this.height/2);	// TODO just for testing
 		int parts_count = 5;
 //		System.out.println("#parts:" + parts_count);
 		parts = new ArrayList<Part>();
@@ -47,6 +47,7 @@ public class Grid extends SearchTreeNode{
 			int i = random(0, this.height-1);
 			int j = random(0, this.width-1);
 			if (this.grid[i][j].contains("p"))
+//			if (this.grid[i][j].contains("p") || ((i==0 || i==this.height-1) && (j==0 || j==this.width-1)))		// TODO Just for testing
 				continue;
 //			System.out.format("Part[%d][%d]\n", i, j);
 			this.parts.add(new Part(i,j));

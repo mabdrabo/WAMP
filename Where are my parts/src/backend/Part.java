@@ -17,12 +17,12 @@ public class Part {
 	
 	public void linkPart(Grid grid, Part part) {
 		for (int[] loc : part.linked_parts_locations) {
-			if (!this.contains(loc)) {
-				System.out.println("Link success");
+			if (!this.hasPart(loc)) {
 				this.linked_parts_locations.add(loc);
 			}
 		}
-		grid.parts.remove(grid.parts.indexOf(part));
+		if (grid.parts.indexOf(part) > -1)
+			grid.parts.remove(grid.parts.indexOf(part));
 	}
 	
 	public boolean hasPart(int[] location) {
@@ -31,18 +31,19 @@ public class Part {
 				return true;
 		return false;
 	}
+
+
+	@Override
+	public ArrayList<int[]> clone() {
+		ArrayList<int[]> list = new ArrayList<int[]>();
+		for (int x=0; x<this.linked_parts_locations.size(); x++)
+			list.add(new int[] {this.linked_parts_locations.get(x)[0], this.linked_parts_locations.get(x)[1]});
+		return list;
+	}
 	
+	@Override
 	public String toString() {
 		return "P" + this.id + ": " + Arrays.deepToString(linked_parts_locations.toArray());
 	}
 
-	public boolean contains(Object o) {
-		int[] location = (int[]) o;
-		for (int[] loc : this.linked_parts_locations) {
-			if (loc[0] == location[0] && loc[1] == location[1])
-				return true;
-		}
-		return false;
-		
-	}
 }
