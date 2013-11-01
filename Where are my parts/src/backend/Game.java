@@ -85,7 +85,7 @@ public class Game {
 					boardPanel.add(l);
 				}
 				else
-					if (random_grid.grid[i][j] == "o") {
+					if (random_grid.grid[i][j] == "b") {
 						l.setBackground(Color.YELLOW);
 						boardPanel.add(l);
 					}
