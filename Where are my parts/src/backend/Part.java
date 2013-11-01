@@ -31,6 +31,15 @@ public class Part {
 				return true;
 		return false;
 	}
+
+
+	@Override
+	public ArrayList<int[]> clone() {
+		ArrayList<int[]> list = new ArrayList<int[]>();
+		for (int x=0; x<this.linked_parts_locations.size(); x++)
+			list.add(new int[] {this.linked_parts_locations.get(x)[0], this.linked_parts_locations.get(x)[1]});
+		return list;
+	}
 	
 	@Override
 	public String toString() {
