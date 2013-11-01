@@ -17,7 +17,7 @@ public class Part {
 	
 	public void linkPart(Grid grid, Part part) {
 		for (int[] loc : part.linked_parts_locations) {
-			if (!this.contains(loc)) {
+			if (!this.hasPart(loc)) {
 				System.out.println("Link success");
 				this.linked_parts_locations.add(loc);
 			}
@@ -32,17 +32,9 @@ public class Part {
 		return false;
 	}
 	
+	@Override
 	public String toString() {
 		return "P" + this.id + ": " + Arrays.deepToString(linked_parts_locations.toArray());
 	}
 
-	public boolean contains(Object o) {
-		int[] location = (int[]) o;
-		for (int[] loc : this.linked_parts_locations) {
-			if (loc[0] == location[0] && loc[1] == location[1])
-				return true;
-		}
-		return false;
-		
-	}
 }
