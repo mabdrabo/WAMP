@@ -18,11 +18,11 @@ public class Part {
 	public void linkPart(Grid grid, Part part) {
 		for (int[] loc : part.linked_parts_locations) {
 			if (!this.hasPart(loc)) {
-				System.out.println("Link success");
 				this.linked_parts_locations.add(loc);
 			}
 		}
-		grid.parts.remove(grid.parts.indexOf(part));
+		if (grid.parts.indexOf(part) > -1)
+			grid.parts.remove(grid.parts.indexOf(part));
 	}
 	
 	public boolean hasPart(int[] location) {

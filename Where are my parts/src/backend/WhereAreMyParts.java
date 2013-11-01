@@ -23,10 +23,10 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		
 		switch (check) {
 		case FAIL:
-			System.out.println("MOVE FAIL, reason: WIRE FENCE");
+//			System.out.println("MOVE FAIL, reason: WIRE FENCE");
 			return false;
 		case STOP:
-			System.out.println("MOVE STOP, reason: OBSTACLE or ROBOT PART");
+//			System.out.println("MOVE STOP, reason: OBSTACLE or ROBOT PART");
 			return true;
 		default:
 			break;
@@ -34,11 +34,11 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		return false;
 	}
 	
-	private TempState checkForStopAndFail1(Grid node, Part part, Operator direction) {
+	private TempState checkForStopAndFail(Grid node, Part part, Operator direction) {
 		// Testing for multiple parts move together
 		TempState returnState = null;
 		boolean move = false;
-		int i=0, j=0, min_i=0, max_i=0, min_j=0, max_j=0;
+		int i=0, j=0, min_i=node.height, max_i=0, min_j=node.width, max_j=0;
 		int[] correct = new int[] {0,0};
 		
 		for (int[] loc : part.linked_parts_locations) {
@@ -82,10 +82,10 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			}
 			else {
 				for (int[] loc : part.linked_parts_locations) {
-					if (node.grid[loc[0]+i][loc[1]+j] == "f" || node.grid[loc[0]+i][loc[1]+j] == "f"
-							|| node.grid[loc[0]+i][loc[1]+j] == "f" || node.grid[loc[0]+i][loc[1]+j] == "f") {
+					if (node.grid[loc[0]+i][loc[1]+j] == "f") {
 						returnState = TempState.FAIL;
 						move = false;
+						break;
 					}
 					
 					if (node.grid[loc[0]+i][loc[1]+j] == "b" || (node.grid[loc[0]+i][loc[1]+j].contains("p") 
@@ -121,7 +121,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		return returnState;
 	}
 	
-	private TempState checkForStopAndFail(Grid node, Part part, Operator direction) {
+	private TempState checkForStopAndFail1(Grid node, Part part, Operator direction) {
 	//	A moving part should Stop if it's facing either an obstacle or an other robotic part
 	//	A moving part should Fail if it's facing a wired fence
 	//	Otherwise, the way is Clear to continue moving
@@ -286,13 +286,13 @@ public class WhereAreMyParts extends GenericSearchProblem {
 						for (int[] loc2 : p2.linked_parts_locations) {
 							if (loc1[0]==loc2[0]) {
 								if (loc1[1]==loc2[1]-1 || loc1[1]==loc2[1]+1) {
-									System.out.println("Horizontal match p1: " + p1 + " p2: " + p2);
+									System.out.println("Horizontal match: " + p1 + " p2: " + p2);
 									p1.linkPart(grid, p2);
 								}
 							}
 							if (loc1[1]==loc2[1]) {
 								if (loc1[0]==loc2[0]-1 || loc1[0]==loc2[0]+1) {
-									System.out.println("Vertical match p1: " + p1 + " p2: " + p2);
+									System.out.println("Vertical match: " + p1 + " p2: " + p2);
 									p1.linkPart(grid, p2);
 								}
 							}
@@ -301,13 +301,13 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				}
 			}
 		}
+		System.out.println("# PARTS: " + grid.parts.size());
 	}
 	
 
 	@Override
 	public boolean goal_test(SearchTreeNode node) {
 		Grid grid = (Grid) node;
-		System.out.println("# PARTS: " + grid.parts.size());
 		if (grid.parts.size() > 1)
 			return false;
 		return true;
