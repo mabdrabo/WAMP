@@ -8,11 +8,4 @@ public abstract class SearchTreeNode {
 	int depth;
 	int path_cost;
 	
-	public SearchTreeNode() {
-		
-	}
-	
-	public void setParent(SearchTreeNode parent) {
-		this.parent = parent;
-	}
 }

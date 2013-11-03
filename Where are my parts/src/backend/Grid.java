@@ -8,8 +8,8 @@ public class Grid extends SearchTreeNode{
 	
 	public ArrayList<Part> parts;
 	ArrayList<String> moves = null;	// a representation of the sequence of moves to reach the goal (if possible)
-	int cost = 0;	// the cost of the solution computed
-	int expansions = 0;	// the number of nodes chosen for expansion during the search
+	public int cost = 0;	// the cost of the solution computed
+	public int expansions = 0;	// the number of nodes chosen for expansion during the search
 	public int width;
 	public int height;
 	private int min = 5;
@@ -52,15 +52,28 @@ public class Grid extends SearchTreeNode{
 		}
 	}
 	
-	public Grid(Grid grid) {
-		this.parts = new ArrayList<Part>(grid.parts);
-		this.width = grid.width;
-		this.height = grid.height;
-		this.moves = new ArrayList<String>(grid.moves);
-		this.expansions = grid.expansions;
-		this.cost = grid.cost;
-		this.state = new String[grid.height][grid.width];
-		this.state = grid.state.clone();
+	public Grid(boolean clone) {
+	}
+	
+	@Override
+	public Grid clone() {
+		Grid grid = new Grid(true);
+		grid.cost = this.cost;
+		grid.depth = this.depth;
+		grid.width = this.width;
+		grid.height = this.height;
+		grid.expansions = this.expansions;
+		grid.state = new String[height][width];
+		for (int i=0; i<this.height; i++)
+			for (int j=0; j<this.width; j++)
+				grid.state[i][j] = this.state[i][j];
+		grid.moves = new ArrayList<String>();
+		for (int i=0; i<this.moves.size(); i++)
+			grid.moves.add(new String (this.moves.get(i)));
+		grid.parts = new ArrayList<Part>();
+		for (int i=0; i<this.parts.size(); i++)
+			grid.parts.add(this.parts.get(i).clone());
+		return grid;
 	}
 	
 	
@@ -68,7 +81,28 @@ public class Grid extends SearchTreeNode{
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
+	@Override
+	public boolean equals(Object grid) {
+		return Arrays.deepToString(this.state).equals(Arrays.deepToString(((Grid) grid).state));
+	}
+	
+	@Override
 	public String toString() {
 		return Arrays.deepToString(this.state);
+	}
+
+	public void replacePart(int id, Part part) {
+		for (int i=0; i<this.parts.size(); i++)
+			if (this.parts.get(i).id == id) {
+				this.parts.remove(i);
+				this.parts.add(part);
+			}
+	}
+
+	public boolean in(ArrayList<Grid> closed_states) {
+		for (int i=0; i<closed_states.size(); i++)
+			if (this.equals(closed_states.get(i)))
+				return true;
+		return false;
 	}
 }

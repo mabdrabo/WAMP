@@ -8,9 +8,11 @@ import java.awt.Label;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 
 public class Game {
 
@@ -64,6 +66,8 @@ public class Game {
 		JButton BFButton = new JButton("Breadth First");
 		BFButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				backend.state_space = new ArrayList<SearchTreeNode>();
+				backend.state_space.add(backend.initial_state);
 				backend.search(backend, SearchStrategy.BF, true);
 			}
 		});
@@ -72,6 +76,8 @@ public class Game {
 		JButton DFButton = new JButton("Depth First");
 		DFButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				backend.state_space = new ArrayList<SearchTreeNode>();
+				backend.state_space.add(backend.initial_state);
 				backend.search(backend, SearchStrategy.DF, true);
 			}
 		});
