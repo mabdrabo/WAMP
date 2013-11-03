@@ -8,7 +8,7 @@ enum Operator {NORTH, EAST, SOUTH, WEST};
 enum TempState {CLEAR, STOP, FAIL};
 
 public class WhereAreMyParts extends GenericSearchProblem {
-	
+
 	public WhereAreMyParts() {
 		this.initial_state = GenGrid();
 	}
@@ -16,14 +16,13 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	public Grid GenGrid() {
 		return new Grid();
 	}
-	
+
 	private boolean move(Grid node, Part part, Operator direction) {
-		// Testing for multiple parts move together
 		TempState moveState = null;
 		boolean move = false;
 		int i=0, j=0, min_i=node.height, max_i=0, min_j=node.width, max_j=0;
 		int[] correct = new int[] {0,0};
-		
+
 		for (int[] loc : part.linked_parts_locations) {
 			if (loc[0] < min_i)
 				min_i = loc[0];
@@ -41,17 +40,17 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				i--;
 				correct[0] = 1;
 				break;
-				
+
 			case SOUTH:
 				i++;
 				correct[0] = -1;
 				break;
-				
+
 			case EAST:
 				j++;
 				correct[1] = -1;
 				break;
-				
+
 			case WEST:
 				j--;
 				correct[1] = 1;
@@ -64,19 +63,19 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			}
 			else {
 				for (int[] loc : part.linked_parts_locations) {
-					if (node.grid[loc[0]+i][loc[1]+j] == "f") {
+					if (node.state[loc[0]+i][loc[1]+j] == "f") {
 						moveState = TempState.FAIL;
 						move = false;
 						break;
 					}
-					
-					if (node.grid[loc[0]+i][loc[1]+j] == "b"){
+
+					if (node.state[loc[0]+i][loc[1]+j] == "b"){
 						moveState = TempState.STOP;
 						System.out.println("obstacle ahead of " + part + "when move " + direction.toString());
 						break;
 					}
 					
-					if (node.grid[loc[0]+i][loc[1]+j].contains("p")) {
+					if (node.state[loc[0]+i][loc[1]+j].contains("p")) {
 						if (!part.hasPart(new int[] {loc[0]+i, loc[1]+j})) {
 							System.out.println("part ahead of " + part + "when move " + direction.toString());
 							moveState = TempState.STOP;
@@ -84,7 +83,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 						}
 					}
 					
-					if (node.grid[loc[0]+i][loc[1]+j] == "e") {
+					if (node.state[loc[0]+i][loc[1]+j] == "e") {
 						move = true;
 						moveState = TempState.CLEAR;
 					}
@@ -95,14 +94,14 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		if (move) {
 			ArrayList<int[]> old_locations = part.clone();
 			for (int x=0; x<part.linked_parts_locations.size(); x++) {
-				String tag = node.grid[part.linked_parts_locations.get(x)[0]][part.linked_parts_locations.get(x)[1]];
+				String tag = node.state[part.linked_parts_locations.get(x)[0]][part.linked_parts_locations.get(x)[1]];
 				part.linked_parts_locations.get(x)[0] += i + correct[0];
 				part.linked_parts_locations.get(x)[1] += j + correct[1];
-				node.grid[part.linked_parts_locations.get(x)[0]][part.linked_parts_locations.get(x)[1]] = tag;
+				node.state[part.linked_parts_locations.get(x)[0]][part.linked_parts_locations.get(x)[1]] = tag;
 			}
 			for (int[] loc : old_locations) {
 				if (!part.hasPart(loc)) {
-					node.grid[loc[0]][loc[1]] = "e";
+					node.state[loc[0]][loc[1]] = "e";
 				}
 			}
 			System.out.println("old " + old_locations + " new " + part.linked_parts_locations);
@@ -163,6 +162,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		ArrayList<Grid> new_nodes = new ArrayList<>();
 		for (int x=0 ; x<node.parts.size(); x++) {
 			Part part = node.parts.get(x);
+			System.out.println("...................................................");
 			for (Operator op : Operator.values()) {
 				Grid new_node = new Grid(node);	// create a copy of the current node
 				new_node.operator = op;
@@ -182,12 +182,12 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		System.out.println("Breadth first");
 		this.state_space.addAll(expand(node));		// add that node to the end of the Q
 	}
-	
+
 	public void depthFirst(Grid node) {
 		System.out.println("Depth first");
 		this.state_space.addAll(0, expand(node));		// add that node to the start of the Q
 	}
-	
+
 	public void greedy(int heuristic) {
 		System.out.println("Greedy " + heuristic);
 		switch (heuristic) {
@@ -198,7 +198,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			break;
 		}
 	}
-		
+
 	public void checkToLinkParts(SearchTreeNode node) {
 		Grid grid = (Grid) node;
 		for (int x=0; x<grid.parts.size(); x++) {
@@ -228,7 +228,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		}
 		System.out.println("# PARTS: " + grid.parts.size());
 	}
-	
+
 	@Override
 	public boolean goal_test(SearchTreeNode node) {
 		Grid grid = (Grid) node;
@@ -252,7 +252,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			return null;
 		}
 	}
-	
+
 	public void path_cost() {
 		// TODO Auto-generated method stub
 	}
