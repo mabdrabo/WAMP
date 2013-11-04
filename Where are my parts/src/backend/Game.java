@@ -8,9 +8,11 @@ import java.awt.Label;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 
 public class Game {
 
@@ -64,6 +66,8 @@ public class Game {
 		JButton BFButton = new JButton("Breadth First");
 		BFButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				backend.state_space = new ArrayList<SearchTreeNode>();
+				backend.state_space.add(backend.initial_state);
 				backend.search(backend, SearchStrategy.BF, true);
 			}
 		});
@@ -72,6 +76,8 @@ public class Game {
 		JButton DFButton = new JButton("Depth First");
 		DFButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				backend.state_space = new ArrayList<SearchTreeNode>();
+				backend.state_space.add(backend.initial_state);
 				backend.search(backend, SearchStrategy.DF, true);
 			}
 		});
@@ -79,23 +85,23 @@ public class Game {
 		for (int i=0; i<random_grid.height; i++)
 			for (int j=0; j<random_grid.width; j++) {
 				Label l = new Label();
-				if (random_grid.grid[i][j].contains("p")) {
+				if (random_grid.state[i][j].contains("p")) {
 					l.setBackground(Color.GREEN);
-					l.setText(random_grid.grid[i][j]);
+					l.setText(random_grid.state[i][j]);
 					boardPanel.add(l);
 				}
 				else
-					if (random_grid.grid[i][j] == "b") {
+					if (random_grid.state[i][j] == "b") {
 						l.setBackground(Color.YELLOW);
 						boardPanel.add(l);
 					}
 					else
-						if (random_grid.grid[i][j] == "e") {
+						if (random_grid.state[i][j] == "e") {
 							l.setBackground(Color.WHITE);
 							boardPanel.add(l);
 						}
 						else
-							if (random_grid.grid[i][j] == "f") {
+							if (random_grid.state[i][j] == "f") {
 								l.setBackground(Color.RED);
 								boardPanel.add(l);
 							}

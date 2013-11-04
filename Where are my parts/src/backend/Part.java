@@ -11,8 +11,12 @@ public class Part {
 
 	public Part(int i, int j) {
 		this.id = count++;
-		linked_parts_locations = new ArrayList<int[]>();
+		this.linked_parts_locations = new ArrayList<int[]>();
 		linked_parts_locations.add(new int[] {i, j});
+	}
+	
+	public Part() {
+		this.linked_parts_locations = new ArrayList<int[]>();
 	}
 	
 	public void linkPart(Grid grid, Part part) {
@@ -34,11 +38,12 @@ public class Part {
 
 
 	@Override
-	public ArrayList<int[]> clone() {
-		ArrayList<int[]> list = new ArrayList<int[]>();
+	public Part clone() {
+		Part part = new Part();
+		part.id = this.id;		
 		for (int x=0; x<this.linked_parts_locations.size(); x++)
-			list.add(new int[] {this.linked_parts_locations.get(x)[0], this.linked_parts_locations.get(x)[1]});
-		return list;
+			part.linked_parts_locations.add(new int[] {this.linked_parts_locations.get(x)[0], this.linked_parts_locations.get(x)[1]});
+		return part;
 	}
 	
 	@Override

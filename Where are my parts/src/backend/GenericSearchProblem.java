@@ -8,9 +8,7 @@ public abstract class GenericSearchProblem {
 	SearchTreeNode initial_state;
 	ArrayList<SearchTreeNode> state_space;	// the set of states reachable from the initial state by any sequence of actions
 	
-	public GenericSearchProblem() {
-		this.state_space = new ArrayList<SearchTreeNode>();
-	}
+	public abstract Object[] search(GenericSearchProblem sp, SearchStrategy searchStrategy, boolean visialize);
 	
 	public abstract boolean goal_test(SearchTreeNode node);	//	the agent applies to a state to determine if it is a goal state.
 	
