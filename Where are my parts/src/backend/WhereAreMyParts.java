@@ -2,6 +2,7 @@ package backend;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 enum SearchStrategy {BF, DF, ID, GR1, GR2, AS1, AS2};
 enum Operator {NORTH, EAST, SOUTH, WEST};
@@ -10,6 +11,7 @@ enum TempState {CLEAR, STOP, FAIL};
 public class WhereAreMyParts extends GenericSearchProblem {
 
 	ArrayList<Grid> closed_states;
+	public int expansions = 0;	// the number of nodes chosen for expansion during the search
 	
 	public WhereAreMyParts() {
 		this.state_space = new ArrayList<SearchTreeNode>();
@@ -28,7 +30,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		boolean move = false;
 		int i=0, j=0, min_i=node.height, max_i=0, min_j=node.width, max_j=0;
 		int[] correct = new int[] {0,0};
-
 		for (int[] loc : part.linked_parts_locations) {
 			if (loc[0] < min_i)
 				min_i = loc[0];
@@ -39,7 +40,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			if (loc[1] > max_j)
 				max_j = loc[1];
 		}
-
 		do {
 			switch (direction) {
 			case NORTH:
@@ -62,7 +62,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				correct[1] = 1;
 				break;
 			}
-
 			if (min_i+i<0 || min_j+j<0 || max_i+i>=node.height || max_j+j>=node.width) {
 				moveState = TempState.FAIL;
 				System.out.println("out of bounds if " + part + "moves " + direction.toString());
@@ -76,21 +75,18 @@ public class WhereAreMyParts extends GenericSearchProblem {
 						move = false;
 						break;
 					}
-
 					if (node.state[loc[0]+i][loc[1]+j] == "b"){
 						moveState = TempState.STOP;
 						System.out.println("obstacle ahead of " + part + "when move " + direction.toString());
 						break;
 					}
-
 					if (node.state[loc[0]+i][loc[1]+j].contains("p")) {
 						if (!part.hasPart(new int[] {loc[0]+i, loc[1]+j})) {
 							System.out.println("part ahead of " + part + "when move " + direction.toString());
 							moveState = TempState.STOP;
 							break;
 						}
-					}
-					
+					}				
 					if (node.state[loc[0]+i][loc[1]+j] == "e") {
 						move = true;
 						moveState = TempState.CLEAR;
@@ -113,6 +109,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				}
 			}
 			System.out.println("moved from " + Arrays.deepToString(old_locations.toArray()) + " to " + Arrays.deepToString(part.linked_parts_locations.toArray()));
+			node.cost += (Math.abs(i) + Math.abs(j) + correct[0] + correct[1]) * part.linked_parts_locations.size(); 
 			node.replacePart(part.id, part);
 			checkToLinkParts(node);
 		}
@@ -132,11 +129,18 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			if (searchProblem.goal_test(node)) {	// success
 				System.out.format("GOAL NODE!! %s\n", node);
 				System.out.println(node.parts);
-				Object[] return_list = {node.moves, node.cost, node.expansions};
+				Object[] return_list = {node.moves, node.cost, this.expansions};
 				System.out.println("Search Return List: " + Arrays.deepToString(return_list));
-				return return_list;
+				break;
+//				Grid g = node;
+//				while(true) {
+//					System.out.println(g + " " + g.operator);
+//					if (g.equals(this.initial_state)) {
+//						break;
+//					}
+//					g = (Grid) g.parent;
+//				}
 			}
-
 			switch (strategy) {
 				case BF:
 					breadthFirst(node);
@@ -156,41 +160,46 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	}
 
 	
-	public ArrayList<Grid> expand(Grid node) {
+	public ArrayList<Grid> expand(Grid node, int bound) {
 		ArrayList<Grid> new_nodes = new ArrayList<>();
 		for (int x=0 ; x<node.parts.size(); x++) {
 			System.out.println(".............NEW PART................");
 			for (Operator op : Operator.values()) {
 				Part part = node.parts.get(x).clone();
 				Grid new_node = node.clone();	// create a clone of the current node
-				new_node.operator = op;
-				new_node.parent = node;
 				if (move(new_node, part, op)) {	// a move is possible within the rules
 					if (!new_node.in(this.closed_states)) {
 						this.closed_states.add(new_node);
-						new_node.expansions++;
+						new_node.operator = op;
+						new_node.parent = node.clone();
+						this.expansions++;
 						new_node.depth++;
 						System.out.println("DEPTH: " + new_node.depth);
 						new_node.moves.add(part.id + " " + op.toString());
 						System.out.format("ADDED: %s after moving %s %s\n", new_node, part, op.toString());
 						new_nodes.add(new_node);
-					} else System.out.println("closed state not added");
+					} else { new_node = null; System.out.println("closed state not added"); }
 				} else new_node = null;
 			}
 		}
+		System.out.println("new nodes: " + new_nodes);
 		return new_nodes;
 	}
 
 	public void breadthFirst(Grid node) {
 		System.out.println("Breadth first");
-		this.state_space.addAll(expand(node));		// add that node to the end of the Q
+		this.state_space.addAll(expand(node, -1));		// add that node to the end of the Q
 	}
 
 	public void depthFirst(Grid node) {
 		System.out.println("Depth first");
-		this.state_space.addAll(0, expand(node));		// add that node to the start of the Q
+		this.state_space.addAll(0, expand(node, -1));		// add that node to the start of the Q
 	}
 
+	public void iterativeDeepening(Grid node) {
+		
+	}
+	
 	public void greedy(int heuristic) {
 		System.out.println("Greedy " + heuristic);
 		switch (heuristic) {
@@ -205,8 +214,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	public void checkToLinkParts(SearchTreeNode node) {
 		boolean linked = false;
 		Grid grid = (Grid) node;
-		System.out.println("node in checkToLink: " + node);
-		System.out.println("parts in checkToLink: " + grid.parts);
 		do {
 			for (int x=0; x<grid.parts.size(); x++) {
 				Part p1 = grid.parts.get(x);
@@ -266,6 +273,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	}
 	
 	public void path_cost() {
-		// TODO Auto-generated method stub
+		
 	}
 }
