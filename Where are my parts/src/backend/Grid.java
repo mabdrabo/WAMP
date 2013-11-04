@@ -12,6 +12,7 @@ public class Grid extends SearchTreeNode{
 	public int expansions = 0;	// the number of nodes chosen for expansion during the search
 	public int width;
 	public int height;
+	public int heuristicValue;
 	private int min = 5;
 	private int max = 5;
 	

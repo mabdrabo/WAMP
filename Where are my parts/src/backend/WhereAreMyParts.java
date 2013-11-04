@@ -145,7 +145,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					depthFirst(node);
 					break;
 				case GR1:
-					greedy(1);
+					greedy(1,node);
 					break;
 
 				default:
@@ -191,10 +191,44 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		this.state_space.addAll(0, expand(node));		// add that node to the start of the Q
 	}
 
-	public void greedy(int heuristic) {
+	public void greedy(int heuristic,Grid node) {
 		System.out.println("Greedy " + heuristic);
 		switch (heuristic) {
 		case 1:
+			ArrayList<Grid> children = expand(node);
+			for(int u=0; u<children.size(); u++){
+				ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
+				ArrayList<Integer> partsHeuristicValues = null; 
+				partsHeuristicValues.add(0,0);
+				int minSoFar = -1;
+				int heuristicValue;
+				int nodeHeuristicValue = 0;
+				for(int i=1; i<children.get(u).parts.size(); i++){
+					for(int j=0; j<children.get(u).parts.get(i).linked_parts_locations.size(); j++){
+						int [] partCoord = children.get(u).parts.get(i).linked_parts_locations.get(j);
+						for(int k=0; k<goalPart.size();k++){
+							int [] goalCoord = children.get(u).parts.get(0).linked_parts_locations.get(k);
+							if(minSoFar == -1){
+								heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+								minSoFar = heuristicValue;
+							}
+							else{
+								heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+								if(heuristicValue < minSoFar){
+									minSoFar = heuristicValue;
+								}
+							}
+						}
+					}
+					partsHeuristicValues.add(i,minSoFar);
+				}
+				
+				for(int z=0; z<partsHeuristicValues.size(); z++){
+					nodeHeuristicValue += partsHeuristicValues.get(z);
+				}
+				children.get(u).heuristicValue = (int) nodeHeuristicValue/partsHeuristicValues.size();
+			}
+			
 			break;
 			
 		case 2:
