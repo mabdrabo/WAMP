@@ -12,6 +12,7 @@ public class Grid extends SearchTreeNode {
 	public int costPlusHeuristic = 0;	// the value of cost + heuristic value (used for both Greedy (heuristic only) and A*)
 	public int width;
 	public int height;
+	public int heuristicValue;
 	private int min = 5;
 	private int max = 5;
 	
