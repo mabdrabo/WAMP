@@ -73,6 +73,8 @@ public class Grid extends SearchTreeNode {
 		grid.parts = new ArrayList<Part>();
 		for (int i=0; i<this.parts.size(); i++)
 			grid.parts.add(this.parts.get(i).clone());
+		if (this.parent != null)
+			grid.parent = ((Grid) this.parent).clone();
 		return grid;
 	}
 	
