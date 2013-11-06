@@ -12,6 +12,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	ArrayList<Grid> closed_states;
 	public int expansions = 0;	// the number of nodes chosen for expansion during the search
 	public Grid goalNode;
+	private int depthLimit = 0; 
 	
 	public WhereAreMyParts() {
 		this.state_space = new ArrayList<SearchTreeNode>();
@@ -126,7 +127,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		return move;
 	}
 	
-	public ArrayList<Grid> expand(Grid node, int limit) {	// -1 limit means no limit
+	public ArrayList<Grid> expand(Grid node) {
 		ArrayList<Grid> new_nodes = new ArrayList<Grid>();
 		for (int x=0 ; x<node.parts.size(); x++) {
 			System.out.println(".............NEW PART................");
@@ -175,7 +176,11 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					breadthFirst(node);
 					break;
 				case DF:
-					depthFirst(node);
+					depthFirst(node, -1);
+					break;
+				case ID:
+					depthFirst(node, depthLimit++);
+//					iterativeDeepening(node);
 					break;
 				case GR1:
 					greedy(1,node);
@@ -190,12 +195,24 @@ public class WhereAreMyParts extends GenericSearchProblem {
 
 	public void breadthFirst(Grid node) {
 		System.out.println("Breadth first");
-		this.state_space.addAll(expand(node, -1));		// add the node's children to the end of the Q
+		this.state_space.addAll(expand(node));		// add the node's children to the end of the Q
 	}
 
-	public void depthFirst(Grid node) {
+	public void depthFirst(Grid node, int limit) {
 		System.out.println("Depth first");
-		this.state_space.addAll(0, expand(node, -1));		// add the node's children to the start of the Q
+		if (node.depth < limit || limit == -1)
+			this.state_space.addAll(0, expand(node));		// add the node's children to the start of the Q
+	}
+	
+	public void iterativeDeepening(Grid node) {
+		
+	}
+	
+	public void depthLimited(Grid node) {
+		System.out.println("Iterative Deepening");
+		while (!this.state_space.isEmpty()) {
+			
+		}
 	}
 
 	
@@ -203,7 +220,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		System.out.println("Greedy " + heuristic);
 		switch (heuristic) {
 		case 1:
-			ArrayList<Grid> children = expand(node, -1);
+			ArrayList<Grid> children = expand(node);
 			for(int u=0; u<children.size(); u++){
 				ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
 				ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>(); 
