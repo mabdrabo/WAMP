@@ -117,7 +117,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				}
 			}
 			System.out.println("moved from " + Arrays.deepToString(old_locations.toArray()) + " to " + Arrays.deepToString(part.linked_parts_locations.toArray()));
-			int cost = (Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();
+			int cost = path_cost(part, i, j, correct);
 			System.out.println("ADDED COST: " + cost);
 			node.cost +=  cost;
 			node.replacePart(part.id, part);
@@ -305,7 +305,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		}
 	}
 	
-	public void path_cost() {
-		
+	public int path_cost(Part part, int i, int j, int[] correct) {
+		return (Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();
 	}
 }

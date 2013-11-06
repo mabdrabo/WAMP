@@ -12,7 +12,7 @@ public abstract class GenericSearchProblem {
 	
 	public abstract boolean goal_test(SearchTreeNode node);	//	the agent applies to a state to determine if it is a goal state.
 	
-	public abstract void path_cost();	//	assigns cost to a sequence of actions.
+//	public abstract void path_cost();	//	assigns cost to a sequence of actions.
 	//	Typically, it is the sum of the costs of individual actions in the sequence.
 
 }
