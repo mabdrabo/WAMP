@@ -13,6 +13,7 @@ public class Grid extends SearchTreeNode{
 	public int width;
 	public int height;
 	public int heuristicValue;
+	public int heuristicPluscost;
 	private int min = 5;
 	private int max = 5;
 	
