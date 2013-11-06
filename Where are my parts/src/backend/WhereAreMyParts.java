@@ -103,7 +103,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			}
 		} while(moveState == TempState.CLEAR);
 		
-		if (move) {
+		if (move && (Math.abs(i) + Math.abs(j) + correct[0] + correct[1]) > 0) {
 			ArrayList<int[]> old_locations = part.clone().linked_parts_locations;
 			for (int x=0; x<part.linked_parts_locations.size(); x++) {
 				String tag = node.state[part.linked_parts_locations.get(x)[0]][part.linked_parts_locations.get(x)[1]];
@@ -117,11 +117,40 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				}
 			}
 			System.out.println("moved from " + Arrays.deepToString(old_locations.toArray()) + " to " + Arrays.deepToString(part.linked_parts_locations.toArray()));
-			node.cost += (Math.abs(i) + Math.abs(j) + correct[0] + correct[1]) * part.linked_parts_locations.size(); 
+			int cost = (Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();
+			System.out.println("ADDED COST: " + cost);
+			node.cost +=  cost;
 			node.replacePart(part.id, part);
 			checkToLinkParts(node);
 		}
 		return move;
+	}
+	
+	public ArrayList<Grid> expand(Grid node, int limit) {	// -1 limit means no limit
+		ArrayList<Grid> new_nodes = new ArrayList<Grid>();
+		for (int x=0 ; x<node.parts.size(); x++) {
+			System.out.println(".............NEW PART................");
+			for (Operator op : Operator.values()) {
+				Part part = node.parts.get(x).clone();
+				Part clone = node.parts.get(x).clone();
+				Grid new_node = node.clone();	// create a clone of the current node
+				if (move(new_node, part, op)) {	// a move is possible within the rules
+					if (!new_node.in(this.closed_states)) {
+						this.closed_states.add(new_node);
+						this.expansions++;
+						new_node.depth++;
+						new_node.operator = op;
+						new_node.parent = node.clone();
+						System.out.println("DEPTH: " + new_node.depth);
+						new_node.moves.add(clone + " " + op.toString());
+						System.out.format("ADDED: %s after moving %s %s\n", new_node, part, op.toString());
+						new_nodes.add(new_node);
+					} else { new_node = null; System.out.println("closed state not added"); }
+				} else new_node = null;
+			}
+		}
+		System.out.println("new nodes: " + new_nodes);
+		return new_nodes;
 	}
 	
 	public Object[] search(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize) {		// General Search
@@ -157,34 +186,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 			}
 		}
 		return null;
-	}
-
-	
-	public ArrayList<Grid> expand(Grid node, int limit) {	// -1 limit means no limit
-		ArrayList<Grid> new_nodes = new ArrayList<Grid>();
-		for (int x=0 ; x<node.parts.size(); x++) {
-			System.out.println(".............NEW PART................");
-			for (Operator op : Operator.values()) {
-				Part part = node.parts.get(x).clone();
-				Part clone = node.parts.get(x).clone();
-				Grid new_node = node.clone();	// create a clone of the current node
-				if (move(new_node, part, op)) {	// a move is possible within the rules
-					if (!new_node.in(this.closed_states)) {
-						this.closed_states.add(new_node);
-						this.expansions++;
-						new_node.depth++;
-						new_node.operator = op;
-						new_node.parent = node.clone();
-						System.out.println("DEPTH: " + new_node.depth);
-						new_node.moves.add(clone + " " + op.toString());
-						System.out.format("ADDED: %s after moving %s %s\n", new_node, part, op.toString());
-						new_nodes.add(new_node);
-					} else { new_node = null; System.out.println("closed state not added"); }
-				} else new_node = null;
-			}
-		}
-		System.out.println("new nodes: " + new_nodes);
-		return new_nodes;
 	}
 
 	public void breadthFirst(Grid node) {
