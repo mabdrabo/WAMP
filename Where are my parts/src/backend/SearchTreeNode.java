@@ -1,6 +1,6 @@
 package backend;
 
-public abstract class SearchTreeNode {
+public abstract class SearchTreeNode implements Comparable<SearchTreeNode>{
 
 	String[][] state;
 	SearchTreeNode parent;

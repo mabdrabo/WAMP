@@ -35,6 +35,15 @@ public class Part {
 				return true;
 		return false;
 	}
+	
+	public boolean contains(Object part_location) {
+		int[] location = (int[]) part_location; 
+		for (int[] loc : this.linked_parts_locations)
+			if (loc[0] == location[0] && loc[1] == location[1])
+				return true;
+		return false;
+		
+	}
 
 
 	@Override

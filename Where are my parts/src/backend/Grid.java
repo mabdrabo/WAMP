@@ -3,13 +3,13 @@ package backend;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Grid extends SearchTreeNode{
+public class Grid extends SearchTreeNode {
 	//	Randomly generated rectangular grid of squares
 	
 	public ArrayList<Part> parts;
 	ArrayList<String> moves = null;	// a representation of the sequence of moves to reach the goal (if possible)
 	public int cost = 0;	// the cost of the solution computed
-	public int expansions = 0;	// the number of nodes chosen for expansion during the search
+	public int costPlusHeuristic = 0;	// the value of cost + heuristic value (used for both Greedy (heuristic only) and A*)
 	public int width;
 	public int height;
 	public int heuristicValue;
@@ -64,7 +64,6 @@ public class Grid extends SearchTreeNode{
 		grid.depth = this.depth;
 		grid.width = this.width;
 		grid.height = this.height;
-		grid.expansions = this.expansions;
 		grid.state = new String[height][width];
 		for (int i=0; i<this.height; i++)
 			for (int j=0; j<this.width; j++)
@@ -75,13 +74,30 @@ public class Grid extends SearchTreeNode{
 		grid.parts = new ArrayList<Part>();
 		for (int i=0; i<this.parts.size(); i++)
 			grid.parts.add(this.parts.get(i).clone());
+		if (this.parent != null)
+			grid.parent = ((Grid) this.parent).clone();
 		return grid;
 	}
 	
+	public void replacePart(int id, Part part) {
+		for (int i=0; i<this.parts.size(); i++)
+			if (this.parts.get(i).id == id) {
+				this.parts.remove(i);
+				this.parts.add(part);
+			}
+	}
+	
+	public boolean in(ArrayList<Grid> closed_states) {
+		for (int i=0; i<closed_states.size(); i++)
+			if (this.equals(closed_states.get(i)))
+				return true;
+		return false;
+	}
 	
 	public static int random(int min, int max) {
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
+	
 	
 	@Override
 	public boolean equals(Object grid) {
@@ -93,18 +109,9 @@ public class Grid extends SearchTreeNode{
 		return Arrays.deepToString(this.state);
 	}
 
-	public void replacePart(int id, Part part) {
-		for (int i=0; i<this.parts.size(); i++)
-			if (this.parts.get(i).id == id) {
-				this.parts.remove(i);
-				this.parts.add(part);
-			}
-	}
-
-	public boolean in(ArrayList<Grid> closed_states) {
-		for (int i=0; i<closed_states.size(); i++)
-			if (this.equals(closed_states.get(i)))
-				return true;
-		return false;
+	@Override
+	public int compareTo(SearchTreeNode node) {
+		Grid grid = (Grid) node;
+		return (this.costPlusHeuristic > grid.costPlusHeuristic)? 1 : (this.costPlusHeuristic < grid.costPlusHeuristic)? -1 : 0; 
 	}
 }
