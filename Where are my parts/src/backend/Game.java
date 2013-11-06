@@ -14,12 +14,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class Game {
 
 	private JFrame frmWhereAreMy;
 	private JPanel boardPanel;
 	WhereAreMyParts backend;
+	Timer animator;
+	int goalPathIndex = 0; 
 	
 	
 	public void paintBoard(String[][] gridState) {
@@ -63,18 +66,33 @@ public class Game {
 		}
 		JOptionPane.showMessageDialog(frmWhereAreMy, msg, strategy.toString() + " stats", JOptionPane.INFORMATION_MESSAGE);
 		if (backend.goalNode != null) {
-			ArrayList<String[][]> goalPath = new ArrayList<String[][]>();
+			final ArrayList<String[][]> goalPath = new ArrayList<String[][]>();
 			Grid node = backend.goalNode;
 			goalPath.add(0, node.state);
 			while (node.parent != null) {
 				node = (Grid) node.parent;
+				System.out.println(node);
 				goalPath.add(0, node.state);
 			}
-			for (int x=0; x<goalPath.size(); x++) {
-				paintBoard(goalPath.get(x));
-			}
-			frmWhereAreMy.validate();
-			frmWhereAreMy.repaint();
+			animator = new Timer(1000, null);
+			animator.setDelay(2000);
+			animator.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (goalPathIndex < goalPath.size()) {
+						System.out.println("Timer print");
+//						System.out.println(goalPath.get(goalPathIndex++));
+						paintBoard(goalPath.get(goalPathIndex++));
+						boardPanel.revalidate();
+						boardPanel.repaint();
+					}else {
+						boardPanel.revalidate();
+						boardPanel.repaint();
+						animator.stop();
+					}
+				}
+			});
+			animator.start();
 		}
 //		JDialog stats = new JDialog(frmWhereAreMy, strategy.toString() + "stats");
 //		stats.setVisible(true);
