@@ -101,6 +101,38 @@ public class Game {
 				paintBoard(backend.initial_state.state);
 			}
 		});
+		
+		JButton GR1Button = new JButton("Greedy 1");
+		GR1Button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SearchButton(SearchStrategy.GR1);
+			}
+		});
+		controlPanel.add(GR1Button);
+		
+		JButton GR2Button = new JButton("Greedy 2");
+		GR2Button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SearchButton(SearchStrategy.GR2);
+			}
+		});
+		controlPanel.add(GR2Button);
+		
+		JButton AS1Button = new JButton("A Star 1");
+		AS1Button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SearchButton(SearchStrategy.AS1);
+			}
+		});
+		controlPanel.add(AS1Button);
+		
+		JButton AS2Button = new JButton("A Star 2");
+		AS2Button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SearchButton(SearchStrategy.AS2);
+			}
+		});
+		controlPanel.add(AS2Button);
 		controlPanel.add(btnNewGame);
 		
 		JPanel statsPanel = new JPanel();

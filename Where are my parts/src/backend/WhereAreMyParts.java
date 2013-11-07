@@ -2,6 +2,7 @@ package backend;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 enum SearchStrategy {BF, DF, ID, GR1, GR2, AS1, AS2};
 enum Operator {NORTH, SOUTH, EAST, WEST};
@@ -185,14 +186,22 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				case GR1:
 					greedy(1,node);
 					break;
-
+				case GR2:
+					greedy(2,node);
+					break;
+				case AS1:
+					Astar(1,node);
+					break;
+				case AS2:
+					Astar(2,node);
+					break;
 				default:
 					break;
 			}
 		}
 		return null;
 	}
-
+	
 	public void breadthFirst(Grid node) {
 		System.out.println("Breadth first");
 		this.state_space.addAll(expand(node));		// add the node's children to the end of the Q
@@ -218,47 +227,105 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	
 	public void greedy(int heuristic,Grid node) {
 		System.out.println("Greedy " + heuristic);
-		switch (heuristic) {
-		case 1:
-			ArrayList<Grid> children = expand(node);
-			for(int u=0; u<children.size(); u++){
-				ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
-				ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>(); 
-				partsHeuristicValues.add(0,0);
-				int minSoFar = -1;
-				int heuristicValue;
-				int nodeHeuristicValue = 0;
-				for(int i=1; i<children.get(u).parts.size(); i++){
-					for(int j=0; j<children.get(u).parts.get(i).linked_parts_locations.size(); j++){
-						int [] partCoord = children.get(u).parts.get(i).linked_parts_locations.get(j);
-						for(int k=0; k<goalPart.size();k++){
-							int [] goalCoord = children.get(u).parts.get(0).linked_parts_locations.get(k);
-							if(minSoFar == -1){
-								heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+		ArrayList<Grid> children = expand(node);
+		for(int u=0; u<children.size(); u++){
+			ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
+			ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>(); 
+			partsHeuristicValues.add(0,0);
+			int minSoFar = -1;
+			int heuristicValue;
+			int nodeHeuristicValue = 0;
+			for(int i=1; i<children.get(u).parts.size(); i++){
+				for(int j=0; j<children.get(u).parts.get(i).linked_parts_locations.size(); j++){
+					int [] partCoord = children.get(u).parts.get(i).linked_parts_locations.get(j);
+					for(int k=0; k<goalPart.size();k++){
+						int [] goalCoord = children.get(u).parts.get(0).linked_parts_locations.get(k);
+						if(minSoFar == -1){
+							heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+							minSoFar = heuristicValue;
+						}
+						else{
+							heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+							if(heuristicValue < minSoFar){
 								minSoFar = heuristicValue;
-							}
-							else{
-								heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
-								if(heuristicValue < minSoFar){
-									minSoFar = heuristicValue;
-								}
 							}
 						}
 					}
-					partsHeuristicValues.add(i,minSoFar);
 				}
-				
+				partsHeuristicValues.add(i,minSoFar);
+			}
+			
+			if(heuristic == 1){
 				for(int z=0; z<partsHeuristicValues.size(); z++){
 					nodeHeuristicValue += partsHeuristicValues.get(z);
 				}
-				children.get(u).heuristicValue = (int) nodeHeuristicValue/partsHeuristicValues.size();
+				children.get(u).heuristicValue = (int)(nodeHeuristicValue/partsHeuristicValues.size());
+			}
+			else{
+				int finalMinHeuristic = partsHeuristicValues.get(0);
+				for(int z=1; z<partsHeuristicValues.size(); z++){
+					if(partsHeuristicValues.get(z) < finalMinHeuristic){
+						finalMinHeuristic = partsHeuristicValues.get(z);
+					}
+				}
+				children.get(u).heuristicValue = finalMinHeuristic;
+			}
+		}
+		this.state_space.addAll(children);
+		Collections.sort(this.state_space);
+	}
+	
+	public void Astar(int heuristic,Grid node) {
+		System.out.println("Astar " + heuristic);
+		ArrayList<Grid> children = expand(node);
+		for(int u=0; u<children.size(); u++){
+			ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
+			ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>();
+			partsHeuristicValues.add(0,0);
+			int minSoFar = -1;
+			int heuristicValue;
+			int nodeHeuristicValue = 0;
+			
+			for(int i=1; i<children.get(u).parts.size(); i++){
+				for(int j=0; j<children.get(u).parts.get(i).linked_parts_locations.size(); j++){
+					int [] partCoord = children.get(u).parts.get(i).linked_parts_locations.get(j);
+					for(int k=0; k<goalPart.size();k++){
+						int [] goalCoord = children.get(u).parts.get(0).linked_parts_locations.get(k);
+						if(minSoFar == -1){
+							heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+							minSoFar = heuristicValue;
+						}
+						else{
+							heuristicValue = Math.abs(partCoord[0]-goalCoord[0]) + Math.abs(partCoord[1]-goalCoord[1]);
+							if(heuristicValue < minSoFar){
+								minSoFar = heuristicValue;
+							}
+						}
+					}
+				}
+				partsHeuristicValues.add(i,minSoFar);
 			}
 			
-			break;
-			
-		case 2:
-			break;
+			if(heuristic == 1){
+				for(int z=0; z<partsHeuristicValues.size(); z++){
+					nodeHeuristicValue += partsHeuristicValues.get(z);
+				}
+				children.get(u).heuristicValue = (int)(nodeHeuristicValue/partsHeuristicValues.size());
+				children.get(u).heuristicPluscost = children.get(u).heuristicValue + children.get(u).cost;
+			}
+			else{
+				int finalMinHeuristic = partsHeuristicValues.get(0);
+				for(int z=1; z<partsHeuristicValues.size(); z++){
+					if(partsHeuristicValues.get(z) < finalMinHeuristic){
+						finalMinHeuristic = partsHeuristicValues.get(z);
+					}
+				}
+				children.get(u).heuristicValue = finalMinHeuristic;
+				children.get(u).heuristicPluscost = children.get(u).heuristicValue + children.get(u).cost;
+			}
 		}
+		this.state_space.addAll(children);
+		Collections.sort(this.state_space);
 	}
 
 	public void checkToLinkParts(SearchTreeNode node) {
