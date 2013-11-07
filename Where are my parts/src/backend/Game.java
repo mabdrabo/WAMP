@@ -1,33 +1,34 @@
 package backend;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-
-import java.awt.BorderLayout;
 import javax.swing.JLabel;
-import javax.swing.BoxLayout;
-import java.awt.Font;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 public class Game {
 
 	private JFrame frmWhereAreMy;
 	private JPanel boardContainerPanel;
 	private JPanel boardPanel;
+	JLabel lblStateName;
+	JLabel lblCost;
+	JLabel lblexpansions;
+	JLabel lblPathToGoal;
+	JLabel lblElapsedTime;
 	WhereAreMyParts backend;
 	Timer animator;
 	ArrayList<String[][]> goalPath;
@@ -42,12 +43,12 @@ public class Game {
 		frmWhereAreMy = new JFrame();
 		frmWhereAreMy.setTitle("Where are my parts?!");
 //		frmWhereAreMy.setResizable(false);
-//		frmWhereAreMy.setBounds(0, 0, (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-		frmWhereAreMy.setBounds(0, 0, 600, 600);
+		frmWhereAreMy.setBounds(0, 0, (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+//		frmWhereAreMy.setBounds(0, 0, 600, 600);
 		frmWhereAreMy.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmWhereAreMy.getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		JLabel lblStateName = new JLabel("Initial State");
+		lblStateName = new JLabel("Initial State");
 		lblStateName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStateName.setFont(new Font("Lucida Grande", Font.PLAIN, 16));
 		frmWhereAreMy.getContentPane().add(lblStateName, BorderLayout.NORTH);
@@ -94,11 +95,10 @@ public class Game {
 		controlPanel.add(DFButton);
 		controlPanel.add(IDButton);
 		
-		JButton btnNewGame = new JButton("New Game");
-		btnNewGame.addActionListener(new ActionListener() {
+		JButton btnVisualize = new JButton("Visualize");
+		btnVisualize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				backend = new WhereAreMyParts();
-				paintBoard(backend.initial_state.state);
+				visualize();
 			}
 		});
 		
@@ -133,7 +133,7 @@ public class Game {
 			}
 		});
 		controlPanel.add(AS2Button);
-		controlPanel.add(btnNewGame);
+		controlPanel.add(btnVisualize);
 		
 		JPanel statsPanel = new JPanel();
 		frmWhereAreMy.getContentPane().add(statsPanel, BorderLayout.EAST);
@@ -143,6 +143,18 @@ public class Game {
 		lblStat.setFont(new Font("Lucida Grande", Font.BOLD, 14));
 		lblStat.setHorizontalAlignment(SwingConstants.CENTER);
 		statsPanel.add(lblStat);
+		
+		lblCost = new JLabel("Cost");
+		statsPanel.add(lblCost);
+		
+		lblexpansions = new JLabel("#Expansions");
+		statsPanel.add(lblexpansions);
+		
+		lblPathToGoal = new JLabel("Path to Goal");
+		statsPanel.add(lblPathToGoal);
+		
+		lblElapsedTime = new JLabel("Elapsed Time");
+		statsPanel.add(lblElapsedTime);
 		
 		paintBoard(initial_grid.state);
 	}
@@ -171,20 +183,27 @@ public class Game {
 							}
 				boardPanel.add(l);
 			}
-		frmWhereAreMy.revalidate();
 		boardPanel.updateUI();
 	}
 	
 	public void SearchButton(SearchStrategy strategy) {
 		backend = new WhereAreMyParts((Grid) backend.initial_state);
+		long start_time = System.nanoTime();
 		Object[] returnList = backend.search(backend, strategy, true);
-		String msg = "No Solution :(";
-		if (returnList != null) {
-			msg = "moves: " + ((ArrayList<String>) returnList[0]).toString();			
-			msg += "\ncost: " + (int) returnList[1];
-			msg += "\nexpansions: " + (int) returnList[2];
+		long end_time = System.nanoTime();
+		double timeTaken = (end_time - start_time)/1e6;
+		lblCost.setText("Cost " + ((returnList == null)? "No Solution" : (int) returnList[1]));
+		lblexpansions.setText("#Expansions " + ((returnList == null)? "No Solution" : (int) returnList[2]));
+		lblElapsedTime.setText("Elapsed Time " + timeTaken + "ms");
+		String moves = "<html>Path to Goal<br>";
+		if (returnList == null)
+			moves = "No Path To Goal";
+		else {
+			for (String move : (ArrayList<String>) returnList[0])
+				moves += move + "<br>";
+			moves += "<br><html>";
+			lblPathToGoal.setText(moves);
 		}
-		JOptionPane.showMessageDialog(frmWhereAreMy, msg, strategy.toString() + " stats", JOptionPane.INFORMATION_MESSAGE);
 		if (backend.goalNode != null) {
 			goalPath = new ArrayList<String[][]>();
 			Grid node = backend.goalNode;
@@ -196,27 +215,34 @@ public class Game {
 			}
 			goalPath.add(0, node.state);
 
-			animator = new Timer(1000, null);
-			animator.setDelay(2000);
-			animator.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (goalPathIndex < goalPath.size()) {
-						paintBoard(goalPath.get(goalPathIndex++));
-						boardPanel.updateUI();
-						boardPanel.validate();
-					}else {
-						System.out.println("STOP TIMER");
-						animator.stop();
-						boardPanel.updateUI();
-						boardPanel.validate();
-					}
-				}
-			});
-			animator.start();
 		}
-//		JDialog stats = new JDialog(frmWhereAreMy, strategy.toString() + "stats");
-//		stats.setVisible(true);
+	}
+	
+	public void visualize() {
+		animator = new Timer(0, null);
+		animator.setDelay(1000);
+		animator.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (goalPathIndex < goalPath.size()) {
+					if (goalPathIndex == 0)
+						lblStateName.setText("Initial State");
+					else
+						if (goalPathIndex == goalPath.size()-1)
+							lblStateName.setText("Goal State");
+						else
+							lblStateName.setText("State #" + goalPathIndex);
+					paintBoard(goalPath.get(goalPathIndex++));
+					boardPanel.updateUI();
+				}else {
+					System.out.println("STOP TIMER");
+					animator.stop();
+					boardPanel.updateUI();
+					goalPathIndex = 0;
+				}
+			}
+		});
+		animator.start();
 	}
 	
 	
