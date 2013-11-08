@@ -13,6 +13,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	ArrayList<Grid> closed_states;
 	public int expansions = 0;	// the number of nodes chosen for expansion during the search
 	public Grid goalNode;
+	public boolean leaf = false;
 	private int depthLimit = 0; 
 	
 	public WhereAreMyParts() {
@@ -148,7 +149,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 						System.out.format("ADDED: %s after moving %s %s\n", new_node, part, op.toString());
 						new_nodes.add(new_node);
 					} else { new_node = null; System.out.println("closed state not added"); }
-				} else new_node = null;
+				} else {new_node = null;}
 			}
 		}
 		System.out.println("new nodes: " + new_nodes);
@@ -247,7 +248,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					nodeHeuristicValue += partsHeuristicValues.get(z);
 				}
 				children.get(u).heuristicValue = (int)(nodeHeuristicValue/partsHeuristicValues.size());
-				children.get(u).heuristicPluscost = children.get(u).heuristicValue;
+//				children.get(u).heuristicPluscost = children.get(u).heuristicValue;
 			}
 			else{
 				int finalMinHeuristic = partsHeuristicValues.get(0);
@@ -257,7 +258,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					}
 				}
 				children.get(u).heuristicValue = finalMinHeuristic;
-				children.get(u).heuristicPluscost = children.get(u).heuristicValue;
+//				children.get(u).heuristicPluscost = children.get(u).heuristicValue;
 			}
 			children.get(u).costPlusHeuristic = children.get(u).heuristicValue; 
 		}
@@ -271,13 +272,13 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		System.out.println("---------COMPARISON_-----------------------");
 		for(int t = 0; t< this.state_space.size(); t++){
 			Grid g = (Grid) this.state_space.get(t);
-			System.out.println("Node "+t+": "+g.heuristicPluscost );
+			System.out.println("Node "+t+": "+g.heuristicValue );
 		}
 		Collections.sort(this.state_space);
 		System.out.println("----------------------------------------");
 		for(int t = 0; t< this.state_space.size(); t++){
 			Grid g = (Grid) this.state_space.get(t);
-			System.out.println("Node "+t+": "+g.heuristicPluscost);
+			System.out.println("Node "+t+": "+g.heuristicValue);
 		}
 		
 	}
@@ -348,74 +349,62 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	}
 		
 	public Object[] iterativeDeepeningSearch(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize, int maxDepth) { 
-	        Grid lastEditedNode = null;
-	        while (true) {  // Threshold to avoid open loops
-				if (this.state_space.isEmpty()) {  // fail
-					System.out.println("NO SOLUTION");
-					break;
-				}
-			   System.out.println("############POP############");
-			   Grid node = (Grid) this.state_space.remove(0);
-			   lastEditedNode = node;
-			   System.out.format("popped node: %s\n", node.toString());
-			   
-			   if (searchProblem.goal_test(node)) { // success
+        		Grid lastEditedNode = null;
+		        while (true) {  // Threshold to avoid open loops
+				   if (this.state_space.isEmpty()) {  // fail
+				    System.out.println("NO SOLUTION");
+				    break;
+				   }
+				   System.out.println("############POP############");
+				   Grid node = (Grid) this.state_space.remove(0);
+				   lastEditedNode = node.clone();
+				   System.out.format("popped node: %s\n", node.toString());
+				   
+				   if (searchProblem.goal_test(node)) { // success
 				    System.out.format("GOAL NODE!! %s\n", node);
 				    System.out.println(node.parts);
-				    Object[] return_list = {node.moves, node.cost};
+				    Object[] return_list = {node.moves, node.cost, this.expansions};
 				    System.out.println("Search Return List: " + Arrays.deepToString(return_list));
 				    return return_list;
-			   }
-	   
-	         if(node.depth < maxDepth){
-	             System.out.println("Iterative deepening");
-	             this.state_space.addAll(0, expand(node));
-	         }
-	         
-	       }
-	        /*
-	        if(lastEditedNode == null){ //Case for state space initially empty
-	            Object [] o = new Object[1];
-	            o[0] = null;
-	            return o;
-	        }
-	        */
-	        if(expand(lastEditedNode).isEmpty()){
-	            Object [] o = new Object[1];
-	            o[0] = null;
-	            return o;
-	        }
-	        else{
-	            return null;
-	        }
-	 }
+				   }
+		   
+		         if(node.depth < maxDepth){
+		             System.out.println("Iterative deepening" + node.depth + maxDepth);
+		             this.state_space.addAll(0, expand(node));
+		         }
+		         
+		        }
+		        if(expand(lastEditedNode).size() == 0){
+		        	closed_states.removeAll(closed_states);
+		            this.leaf = true;
+		            return null;
+		        }
+		        else{
+		            return null;
+		        }
+ }
 
 
 
-
-	 public Object[] iterativeDeepening(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize){
-		 Object[] ret = null;
-	     int i = 0;
-	            Grid temp = (Grid) this.state_space.remove(0);
-	            System.out.println("HELLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-	            System.out.println(temp);
-	     while(ret == null){
-	    	 if(state_space.isEmpty()){
-	    		 System.out.println("BYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-	    		 this.state_space.add(0, temp); 
-	    	 }
-	          System.out.println("AAAAAAAAAA"+this.state_space);
+ public Object[] iterativeDeepening(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize){
+     Object[] ret = null;
+     int i = 0;
+	     while(ret == null && leaf == false){
+	                 if(i != 0){
+	                    this.state_space.add(0, this.initial_state);
+	                 }
+	                 //System.out.println("AAAAAAAAAA"+this.state_space);
 	                 ret = iterativeDeepeningSearch(searchProblem, strategy, visualize, i);
 	                 i++;
 	     }
-	     if(ret.length == 1 && ret[0]==null){
-	         return null;
-	     }
-	     else{
-	         return ret;
-	     }
-	     
-	 }
+//     if(leaf){
+//         return null;
+//     }
+//     else{
+//         return ret;
+//     }
+     return ret;
+ }
 	
 	public void checkToLinkParts(SearchTreeNode node) {
 		boolean linked = false;
