@@ -54,7 +54,13 @@ Since `checkToLinkParts()` removes linked parts from the Grid's parts list, the 
 
     + ###`int path_cost(Part part, int i, int j, int[] correct)`
 Given a Part (and it's linked_parts_locations), vertical steps (i), horizontal steps (j), since the i or j steps is the place of the stopping condition (obstacle/part) a correcting value of (-1 or 1) should be added to the #steps to correctly position the part adjacent to the stopping object (not over it)
-cost equation: `(Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();`
+
+cost equation:
+```
+#!java
+
+(Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();
+```
 
     + ###`void paintBoard(String[][] gridState)`
 This function is responsible for updating the UI with given grid state.
