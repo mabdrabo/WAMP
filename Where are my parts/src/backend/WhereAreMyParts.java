@@ -177,11 +177,9 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					breadthFirst(node);
 					break;
 				case DF:
-					depthFirst(node, -1);
+					depthFirst(node);
 					break;
 				case ID:
-					depthFirst(node, depthLimit++);
-//					iterativeDeepening(node);
 					break;
 				case GR1:
 					greedy(1,node);
@@ -207,23 +205,10 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		this.state_space.addAll(expand(node));		// add the node's children to the end of the Q
 	}
 
-	public void depthFirst(Grid node, int limit) {
+	public void depthFirst(Grid node) {
 		System.out.println("Depth first");
-		if (node.depth < limit || limit == -1)
-			this.state_space.addAll(0, expand(node));		// add the node's children to the start of the Q
+		this.state_space.addAll(0, expand(node));		// add the node's children to the start of the Q
 	}
-	
-	public void iterativeDeepening(Grid node) {
-		
-	}
-	
-	public void depthLimited(Grid node) {
-		System.out.println("Iterative Deepening");
-		while (!this.state_space.isEmpty()) {
-			
-		}
-	}
-
 	
 	public void greedy(int heuristic,Grid node) {
 		System.out.println("Greedy " + heuristic);
@@ -372,21 +357,6 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		if (grid.parts.size() > 1)
 			return false;
 		return true;
-	}
-
-	public Operator opposite(Operator direction) {
-		switch (direction) {
-		case NORTH:
-			return Operator.SOUTH;
-		case SOUTH:
-			return Operator.NORTH;
-		case EAST:
-			return Operator.WEST;
-		case WEST:
-			return Operator.EAST;
-		default:
-			return null;
-		}
 	}
 	
 	public int path_cost(Part part, int i, int j, int[] correct) {
