@@ -13,9 +13,8 @@ public class Grid extends SearchTreeNode {
 	public int width;
 	public int height;
 	public int heuristicValue;
-	public int heuristicPluscost;
 	private int min = 6;
-	private int max = 6;
+	private int max = 8;
 	
 	public Grid() {
 		this.width = random(min, max);
@@ -32,7 +31,6 @@ public class Grid extends SearchTreeNode {
 					this.state[i][j] = "e";
 		
 		int obstacles_count = random(0, this.width*this.height/2);
-//		int obstacles_count = 0;	// TODO just for testing
 		System.out.println("#obstacles:" + obstacles_count);
 		for (int x=0; x<obstacles_count; x++) {
 			int i = random(0, this.height-1);
@@ -41,13 +39,12 @@ public class Grid extends SearchTreeNode {
 		}
 		
 		int parts_count = random(0, this.width*this.height/2);
-//		int parts_count = 5;		// TODO just for testing
 		System.out.println("#parts:" + parts_count);
 		parts = new ArrayList<Part>();
-		for (int x=0; x<parts_count; x++) {
+		for (int x=0; this.parts.size()<parts_count; x++) {
 			int i = random(0, this.height-1);
 			int j = random(0, this.width-1);
-			if (this.state[i][j].contains("p"))
+			if (this.state[i][j].contains("p") || this.state[i][j].equals("f"))
 				continue;
 			this.parts.add(new Part(i,j));
 			this.state[i][j] = "p" + this.parts.get(parts.size()-1).id;
@@ -112,6 +109,6 @@ public class Grid extends SearchTreeNode {
 	@Override
 	public int compareTo(SearchTreeNode node) {
 		Grid grid = (Grid) node;
-		return (this.costPlusHeuristic > grid.costPlusHeuristic)? 1 : (this.costPlusHeuristic < grid.costPlusHeuristic)? -1 : 0; 
+		return (this.costPlusHeuristic > grid.costPlusHeuristic)? 1 : (this.costPlusHeuristic < grid.costPlusHeuristic)? -1 : 0;
 	}
 }

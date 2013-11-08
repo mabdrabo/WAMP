@@ -259,6 +259,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 				children.get(u).heuristicValue = finalMinHeuristic;
 				children.get(u).heuristicPluscost = children.get(u).heuristicValue;
 			}
+			children.get(u).costPlusHeuristic = children.get(u).heuristicValue; 
 		}
 		
 		System.out.println("------------ HEURISTICS---------------");
@@ -317,7 +318,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					nodeHeuristicValue += partsHeuristicValues.get(z);
 				}
 				children.get(u).heuristicValue = (int)(nodeHeuristicValue/partsHeuristicValues.size());
-				children.get(u).heuristicPluscost = children.get(u).heuristicValue + children.get(u).cost;
+				children.get(u).costPlusHeuristic = children.get(u).heuristicValue + children.get(u).cost;
 			}
 			else{
 				int finalMinHeuristic = partsHeuristicValues.get(0);
@@ -327,7 +328,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 					}
 				}
 				children.get(u).heuristicValue = finalMinHeuristic;
-				children.get(u).heuristicPluscost = children.get(u).heuristicValue + children.get(u).cost;
+				children.get(u).costPlusHeuristic = children.get(u).heuristicValue + children.get(u).cost;
 			}
 		}
 		
@@ -337,7 +338,13 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		}
 		
 		this.state_space.addAll(children);
+		for (SearchTreeNode n : this.state_space)
+			System.out.print(((Grid) n).costPlusHeuristic + " , ");
+		System.out.println();
 		Collections.sort(this.state_space);
+		for (SearchTreeNode n : this.state_space)
+			System.out.print(((Grid) n).costPlusHeuristic + " , ");
+		System.out.println();
 	}
 		
 	public Object[] iterativeDeepeningSearch(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize, int maxDepth) { 
@@ -451,9 +458,9 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	public boolean goal_test(SearchTreeNode node) {
 		Grid grid = (Grid) node;
 		checkToLinkParts(grid);
-		if (grid.parts.size() > 1)
-			return false;
-		return true;
+		if (grid.parts.size() == 1)
+			return true;
+		return false;
 	}
 	
 	public int path_cost(Part part, int i, int j, int[] correct) {
