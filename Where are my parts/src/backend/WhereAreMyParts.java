@@ -149,7 +149,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 						System.out.format("ADDED: %s after moving %s %s\n", new_node, part, op.toString());
 						new_nodes.add(new_node);
 					} else { new_node = null; System.out.println("closed state not added"); }
-				} else {new_node = null;}
+				} else new_node = null;
 			}
 		}
 		System.out.println("new nodes: " + new_nodes);
@@ -349,7 +349,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 	}
 		
 	public Object[] iterativeDeepeningSearch(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize, int maxDepth) { 
-        		Grid lastEditedNode = null;
+        Grid lastEditedNode = null;
 		        while (true) {  // Threshold to avoid open loops
 				   if (this.state_space.isEmpty()) {  // fail
 				    System.out.println("NO SOLUTION");
@@ -374,8 +374,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		         }
 		         
 		        }
-		        if(expand(lastEditedNode).size() == 0){
-		        	closed_states.removeAll(closed_states);
+		        if(expand(lastEditedNode).isEmpty()){
 		            this.leaf = true;
 		            return null;
 		        }
@@ -386,25 +385,22 @@ public class WhereAreMyParts extends GenericSearchProblem {
 
 
 
- public Object[] iterativeDeepening(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize){
-     Object[] ret = null;
-     int i = 0;
-	     while(ret == null && leaf == false){
-	                 if(i != 0){
-	                    this.state_space.add(0, this.initial_state);
-	                 }
-	                 //System.out.println("AAAAAAAAAA"+this.state_space);
-	                 ret = iterativeDeepeningSearch(searchProblem, strategy, visualize, i);
-	                 i++;
-	     }
-//     if(leaf){
-//         return null;
-//     }
-//     else{
-//         return ret;
-//     }
-     return ret;
- }
+	public Object[] iterativeDeepening(GenericSearchProblem searchProblem, SearchStrategy strategy, boolean visualize){
+	    Object[] ret = null;
+	    int i = 0;
+	    while((ret == null) && (!leaf)){
+                 if(i != 0){
+                    this.state_space.add(0, this.initial_state);
+                 }
+                 //System.out.println("AAAAAAAAAA"+this.state_space);
+                 this.closed_states.removeAll(closed_states);
+                 ret = iterativeDeepeningSearch(searchProblem, strategy, visualize, i);
+                 i++;
+	    }
+            
+            return ret;
+	    
+	}
 	
 	public void checkToLinkParts(SearchTreeNode node) {
 		boolean linked = false;
