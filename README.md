@@ -53,14 +53,9 @@ It loops over the list of parts in the Grid node, checks for adjacent parts that
 Since `checkToLinkParts()` removes linked parts from the Grid's parts list, the goal node would be having only part in the list of parts. That's exactly what it does; if the list's size is 1 returns true else returns false.
 
     + ###`int path_cost(Part part, int i, int j, int[] correct)`
-Given a Part (and it's linked_parts_locations), vertical steps (i), horizontal steps (j), since the i or j steps is the place of the stopping condition (obstacle/part) a correcting value of (-1 or 1) should be added to the #steps to correctly position the part adjacent to the stopping object (not over it)
-
+Given a Part (and it's linked_parts_locations), vertical steps (i), horizontal steps (j), since the i or j steps is the place of the stopping condition (obstacle/part) a correcting value of (-1 or 1) should be added to the #steps to correctly position the part adjacent to the stopping object (not over it).
 cost equation:
-```
-#!java
-
-(Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();
-```
+`(Math.abs(i + j + correct[0] + correct[1])) * part.linked_parts_locations.size();`
 
     + ###`void paintBoard(String[][] gridState)`
 This function is responsible for updating the UI with given grid state.
