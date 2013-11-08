@@ -241,7 +241,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		ArrayList<Grid> children = expand(node);
 		for(int u=0; u<children.size(); u++){
 			ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
-			ArrayList<Integer> partsHeuristicValues = null; 
+			ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>(); 
 			partsHeuristicValues.add(0,0);
 			int minSoFar = -1;
 			int heuristicValue;
@@ -296,7 +296,7 @@ public class WhereAreMyParts extends GenericSearchProblem {
 		ArrayList<Grid> children = expand(node);
 		for(int u=0; u<children.size(); u++){
 			ArrayList<int[]> goalPart = children.get(u).parts.get(0).linked_parts_locations;
-			ArrayList<Integer> partsHeuristicValues = null; 
+			ArrayList<Integer> partsHeuristicValues = new ArrayList<Integer>(); 
 			partsHeuristicValues.add(0,0);
 			int minSoFar = -1;
 			int heuristicValue;
