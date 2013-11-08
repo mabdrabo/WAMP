@@ -14,8 +14,8 @@ public class Grid extends SearchTreeNode {
 	public int height;
 	public int heuristicValue;
 	public int heuristicPluscost;
-	private int min = 5;
-	private int max = 5;
+	private int min = 6;
+	private int max = 6;
 	
 	public Grid() {
 		this.width = random(min, max);
@@ -27,12 +27,12 @@ public class Grid extends SearchTreeNode {
 		for (int i=0; i<height; i++)
 			for (int j=0; j<width; j++)
 				if (i==0 || j==0 || i==height-1 || j==width-1) {
-					this.state[i][j] = "b";		// TODO CHANGE TO f INSTED OF b, THIS WAS JUST A TEST
+					this.state[i][j] = "f";		// TODO CHANGE TO f INSTED OF b, THIS WAS JUST A TEST
 				} else 
 					this.state[i][j] = "e";
 		
-//		int obstacles_count = random(0, this.width*this.height/2);	// TODO just for testing
-		int obstacles_count = 0;
+		int obstacles_count = random(0, this.width*this.height/2);
+//		int obstacles_count = 0;	// TODO just for testing
 		System.out.println("#obstacles:" + obstacles_count);
 		for (int x=0; x<obstacles_count; x++) {
 			int i = random(0, this.height-1);
@@ -40,9 +40,9 @@ public class Grid extends SearchTreeNode {
 			this.state[i][j] = "b";
 		}
 		
-//		int parts_count = random(0, this.width*this.height/2);	// TODO just for testing
-		int parts_count = 5;
-//		System.out.println("#parts:" + parts_count);
+		int parts_count = random(0, this.width*this.height/2);
+//		int parts_count = 5;		// TODO just for testing
+		System.out.println("#parts:" + parts_count);
 		parts = new ArrayList<Part>();
 		for (int x=0; x<parts_count; x++) {
 			int i = random(0, this.height-1);
